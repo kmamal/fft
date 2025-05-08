@@ -4,18 +4,27 @@
   "description": "fft",
   "repository": {
     "type": "git",
-    "url": "git@github.com:kmamal/fft.git"
+    "url": "git+ssh://git@github.com:kmamal/fft.git"
   },
-  "main": "src/index.js",
+  "exports": {
+    "./magnitude": "./src/magnitude.js",
+    "./dft": "./src/dft.js",
+    "./expi": "./src/expi.js",
+    "./fft": "./src/fft.js",
+    "./reverse-bits": "./src/reverse-bits.js",
+    "./idft": "./src/idft.js",
+    "./ifft": "./src/ifft.js"
+  },
   "scripts": {
-    "test": "./scripts/run-tests.sh",
+    "test": "npx -p @kmamal/testing testing",
     "update-exports": "node ./scripts/update-exports.mjs"
   },
   "license": "MIT",
   "dependencies": {
-    "@kmamal/util": "^0.1.7"
+    "@kmamal/complex": "^0.0.1",
+    "@kmamal/util": "^0.2.1"
   },
   "devDependencies": {
-    "@kmamal/testing": "^0.0.21"
+    "@kmamal/testing": "^0.0.30"
   }
 }
