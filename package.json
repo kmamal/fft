@@ -22,9 +22,9 @@
   "license": "MIT",
   "dependencies": {
     "@kmamal/complex": "^0.0.1",
-    "@kmamal/util": "^0.2.1"
+    "@kmamal/util": "^0.2.29"
   },
   "devDependencies": {
-    "@kmamal/testing": "^0.0.30"
+    "@kmamal/testing": "^0.0.31"
   }
 }

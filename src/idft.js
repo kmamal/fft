@@ -1,54 +1,45 @@
 const { memoize } = require('@kmamal/util/function/memoize')
 const { map } = require('@kmamal/util/array/map')
 
-const TWO_PI = 2 * Math.PI
-
 const map$$$ = map.$$$
-
-const tmp = {}
 
 const defineFor = memoize((Algebra) => {
 	const {
 		fromNumber: _fromNumber,
 	} = Algebra
 
-	const _ZERO = _fromNumber(0)
 	const _ONE = _fromNumber(1)
 
 	const Complex = require('@kmamal/complex').defineFor(Algebra)
 	const {
-		fromParts,
-		add,
-		mul,
+		conjugate,
 		scale,
 	} = Complex
 
 	const re$$$ = (x) => x.re
-	const add$$$ = add.$$$
-	const mul$$$ = mul.$$$
+	const conjugate$$$ = conjugate.$$$
 	const scale$$$ = scale.$$$
 
-	const { expi } = require('./expi').defineFor(Algebra)
-	const expiTo = expi.to
+	const { dft } = require('./dft').defineFor(Algebra)
 
-	const idft = (arr) => {
-		const { length } = arr
-		const res = new Array(length)
+	const dft$$$ = dft.$$$
 
-		const factor = TWO_PI / length
-		const _scale = _fromNumber(_ONE / length)
-		for (let i = 0; i < length; i++) {
-			res[i] = fromParts(_ZERO, _ZERO)
-			for (let j = 0; j < length; j++) {
-				expiTo(tmp, factor * i * j)
-				mul$$$(tmp, arr[j])
-				add$$$(res[i], tmp)
-			}
-			scale$$$(res[i], _scale)
+	const idft$$$ = (arr) => {
+		const N = arr.length
+
+		map$$$(arr, conjugate$$$)
+		dft$$$(arr)
+		map$$$(arr, conjugate$$$)
+
+		const _scale = _fromNumber(_ONE / N)
+		for (let i = 0; i < N; i++) {
+			scale$$$(arr[i], _scale)
 		}
 
-		return res
+		return arr
 	}
+	const idft = (arr) => idft$$$(Array.from(arr))
+	idft.$$$ = idft$$$
 
 	const idftReal = (arr) => {
 		const res = idft(arr)

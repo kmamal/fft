@@ -23,11 +23,12 @@ const defineFor = memoize((Algebra) => {
 		mul,
 	} = Complex
 
-	const fromReal$$$ = isPrimitive
-		? (_re) => ({ re: _re, im: _ZERO })
-		: (_re) => ({ re: _re, im: _clone(_ZERO) })
+	const reItself = (x) => x.re
 	const add$$$ = add.$$$
 	const mul$$$ = mul.$$$
+	const fromRealItself = isPrimitive
+		? (_re) => ({ re: _re, im: _ZERO })
+		: (_re) => ({ re: _re, im: _clone(_ZERO) })
 
 	const { expi } = require('./expi').defineFor(Algebra)
 	const expiTo = expi.to
@@ -40,7 +41,7 @@ const defineFor = memoize((Algebra) => {
 		for (let i = 0; i < length; i++) {
 			res[i] = fromParts(_ZERO, _ZERO)
 			for (let j = 0; j < length; j++) {
-				expiTo(tmp, factor * i * j)
+				expiTo(tmp, (i * j) * factor)
 				mul$$$(tmp, arr[j])
 				add$$$(res[i], tmp)
 			}
@@ -50,8 +51,10 @@ const defineFor = memoize((Algebra) => {
 	}
 
 	const dftReal = (arr) => {
-		map$$$(arr, fromReal$$$)
-		return dft(arr)
+		map$$$(arr, fromRealItself)
+		const res = dft(arr)
+		map$$$(arr, reItself)
+		return res
 	}
 
 	return {

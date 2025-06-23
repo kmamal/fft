@@ -1,13 +1,7 @@
 const { memoize } = require('@kmamal/util/function/memoize')
 const { map } = require('@kmamal/util/array/map')
-const { reverseBits } = require('./reverse-bits')
-
-const TWO_PI = 2 * Math.PI
 
 const map$$$ = map.$$$
-
-const tmp1 = {}
-const tmp2 = {}
 
 const defineFor = memoize((Algebra) => {
 	const {
@@ -18,50 +12,34 @@ const defineFor = memoize((Algebra) => {
 
 	const Complex = require('@kmamal/complex').defineFor(Algebra)
 	const {
-		add,
-		sub,
-		mul,
+		conjugate,
 		scale,
 	} = Complex
 
 	const re$$$ = (x) => x.re
-	const add$$$ = add.$$$
-	const subTo = sub.to
-	const mulTo = mul.to
+	const conjugate$$$ = conjugate.$$$
 	const scale$$$ = scale.$$$
 
-	const { expi } = require('./expi')(Algebra)
-	const expiTo = expi.to
+	const { fft } = require('./fft').defineFor(Algebra)
 
-	const ifft = (arr) => {
-		const { length } = arr
-		const res = new Array(length)
+	const fft$$$ = fft.$$$
 
-		const shift = 32 - Math.log2(length)
-		for (let i = 0; i < length; i++) {
-			const j = reverseBits(i) >>> shift
-			res[j] = arr[i]
+	const ifft$$$ = (arr) => {
+		const N = arr.length
+
+		map$$$(arr, conjugate$$$)
+		fft$$$(arr)
+		map$$$(arr, conjugate$$$)
+
+		const _scale = _fromNumber(_ONE / N)
+		for (let i = 0; i < N; i++) {
+			scale$$$(arr[i], _scale)
 		}
 
-		const factor = TWO_PI / length
-		for (let step = 2; step <= length; step *= 2) {
-			for (let i = 0; i < step / 2; i++) {
-				expiTo(tmp1, factor * i)
-				for (let j = 0; j < length / step; j++) {
-					mulTo(tmp2, tmp1, res[j * step + i + step / 2])
-					subTo(res[j * step + i + step / 2], res[j * step + i], tmp2)
-					add$$$(res[j * step + i], tmp2)
-				}
-			}
-		}
-
-		const _scale = _fromNumber(_ONE / length)
-		for (let i = 0; i < length; i++) {
-			scale$$$(res[i], _scale)
-		}
-
-		return res
+		return arr
 	}
+	const ifft = (arr) => ifft$$$(Array.from(arr))
+	ifft.$$$ = ifft$$$
 
 	const ifftReal = (arr) => {
 		const res = ifft(arr)

@@ -11,11 +11,22 @@ const defineFor = memoize((Algebra) => {
 
 	const Complex = require('@kmamal/complex').defineFor(Algebra)
 	const {
+		normSquared,
 		norm,
 	} = Complex
 
+	const normSquaredTo = normSquared.to
+	const normSquared$$$ = (x) => normSquaredTo(x.re, x)
 	const normTo = norm.to
 	const norm$$$ = (x) => normTo(x.re, x)
+
+	const magnitudeSquared = (arr) => map(arr, normSquared)
+	const magnitudeSquaredTo = (dst, arr) => mapTo(dst, arr, normSquared)
+	const magnitudeSquared$$$ = isPrimitive
+		? (arr) => map$$$(arr, normSquared)
+		: (arr) => map$$$(arr, normSquared$$$)
+	magnitudeSquared.to = magnitudeSquaredTo
+	magnitudeSquared.$$$ = magnitudeSquared$$$
 
 	const magnitude = (arr) => map(arr, norm)
 	const magnitudeTo = (dst, arr) => mapTo(dst, arr, norm)
@@ -25,7 +36,10 @@ const defineFor = memoize((Algebra) => {
 	magnitude.to = magnitudeTo
 	magnitude.$$$ = magnitude$$$
 
-	return { magnitude }
+	return {
+		magnitudeSquared,
+		magnitude,
+	}
 })
 
 module.exports = { defineFor }
